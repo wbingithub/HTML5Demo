@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>web worker处理线程-实例</title>
+</head>
+<body>
+    <p>
+        在文本框输入数字，点击按钮求和
+    </p>
+    <script>
+        /*
+        function calculate(){
+            var num = parseInt( document.getElementById("num").value , 10 );
+            var result = 0;
+            //循环计算求和
+            for(var i=0;i<=num;i++){
+                result +=i;
+            }
+            document.getElementById("result").innerHTML = "合计值为"+result+"。";
+        }
+        */
+
+        
+        //创建执行运算的线程
+        var worker = new Worker("worker01.js");
+        //接收从线程中传出的计算结果
+        worker.onmessage = function(event){
+            //消息文本放置在data属性中，可以时任何JavaScript对象。
+            document.getElementById("result").innerHTML = "合计值为 ："+ event.data +"。";
+        };
+        function calculate(){
+            var num = parseInt( document.getElementById("num").value , 10 );
+            //将数值传给线程
+            worker.postMessage( num );
+        }
+        
+
+
+
+    </script>
+    <br>
+    <input type="text" id="num">
+    <br>
+    <input onclick="calculate()" type="button" value="点击按钮求和">
+    <br>
+    <div id="result"></div>
+
+    <div id="box1">点击颜色变红色</div>
+    <script>
+        document.getElementById("box1").onclick = function(){
+            this.style.color = "#f00";
+        }
+    </script>
+</body>
+</html>

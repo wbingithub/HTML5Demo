@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>与线程进行数据交互示例</title>
+    <style>
+        body{
+            /*background-color: #ededed;*/
+        }
+    </style>
+</head>
+<body>
+    <p>
+        在该示例中页面上随机生成了一个整数的数组，然后将该整数的数组传入线程，挑选出该数组中可以被3整除的数字，然后显示在画面的表格中，如果能够把数组显示在画面的表格中，那么就能够把字符串、数组、列表中的数据都采取同样的方法显示在画面的表格、表单控件甚至于统计图中了。
+    </p>
+    <script>
+        var intArray = new Array(300);//随机数组
+        var intStr = "";//将随机数组用字符串进行连接
+        //生成100个随机数
+        for( var i=0;i<intArray.length;i++ )
+        {
+            intArray[i] = parseInt(Math.random()*100);
+            if(i != 0){
+                intStr += ";";
+            }
+            intStr += intArray[i];
+        }
+        //向后台线程提交随机数组
+        var worker = new Worker("worker02.js");
+        worker.postMessage(intStr);
+        console.log(intStr);
+        //从线程中取得计算结果
+        worker.onmessage = function(event){
+            if( event.data != "" ){
+                var j;//行号
+                var k;//列号
+                var tr;
+                var td;
+                var intArray = event.data.split(";");
+                var table = document.getElementById("table");
+                for( var i=0;i<intArray.length;i++ ){
+                    j = parseInt(i/10,0);
+                    k = i%10;
+                    if( k == 0 ){
+                        //添加行
+                        tr = document.createElement("tr");
+                        tr.id = "tr"+j;
+                        table.appendChild(tr);
+                    }else{//该行已存在
+                        //获取该行
+                        tr = document.getElementById("tr"+j);
+                    }
+                    //添加列
+                    td = document.createElement("td");
+                    tr.appendChild(td);
+                    //设置该列内容
+                    td.innerHTML = intArray[j*10+k];
+                    //设置该列字体颜色
+                    td.style.color = "black";
+                    //设置列宽
+                    td.width = "30";
+                }
+            }
+        };
+
+    </script>
+    <h1>从随机生成的数字中抽取3的倍数并显示示例</h1>
+    <table id="table"></table>
+</body>
+</html>
